@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .btn-predict {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        .btn-predict:hover {
+            background-color: #5a67d8;
+        }
+        .btn-reset {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            margin-bottom: 0; /* Last button */
+        }
+        .btn-reset:hover {
+            background-color: #cbd5e0;
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            display: none; /* Hidden by default */
+        }
+        /* Show result if content exists */
+        .result.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🎓 AI Grade Predictor</h2>
+        
+        <form action="/predict" method="post">
+            
+            <label>Gender</label>
+            <select name="Gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <label>Department</label>
+            <select name="Department" required>
+                <option value="" disabled selected>Select Department</option>
+                <option value="CSE">CSE</option>
+                <option value="EEE">EEE</option>
+                <option value="Edtech">Edtech</option>
+                <option value="English">English</option>
+                <option value="BBA">BBA</option>
+                <option value="Physics">Physics</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="Economics">Economics</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>SSC Result</label>
+            <select name="SSC result" required>
+                <option value="" disabled selected>Select SSC GPA</option>
+                <option value="GPA 5.00">GPA 5.00</option>
+                <option value="GPA 4.00 - 4.99">GPA 4.00 - 4.99</option>
+                <option value="GPA 3.00 - 3.99">GPA 3.00 - 3.99</option>
+                <option value="Less than 3.00">Less than 3.00</option>
+            </select>
+
+            <label>HSC Result</label>
+            <select name="HSC result" required>
+                <option value="" disabled selected>Select HSC GPA</option>
+                <option value="GPA 5.00">GPA 5.00</option>
+                <option value="GPA 4.00 - 4.99">GPA 4.00 - 4.99</option>
+                <option value="GPA 3.00 - 3.99">GPA 3.00 - 3.99</option>
+                <option value="Less than 3.00">Less than 3.00</option>
+            </select>
+
+            <label>Weekly Study Time (Home)</label>
+            <select name="Weekly Study Time at home" required>
+                <option value="" disabled selected>Select Hours</option>
+                <option value="Less than 1 Hour">Less than 1 Hour</option>
+                <option value="2-5 Hour">2-5 Hours</option>
+                <option value="6-10Hour">6-10 Hours</option>
+                <option value="11-15 Hour">11-15 Hours</option>
+                <option value="More than 15 Hour">More than 15 Hours</option>
+            </select>
+
+            <label>Class Attendance</label>
+            <select name="Attendance in class" required>
+                <option value="" disabled selected>Select Attendance</option>
+                <option value="More than 80%class">More than 80%</option>
+                <option value="60%-79% classes">60% - 79%</option>
+                <option value="Less than 60% classes">Less than 60%</option>
+            </select>
+
+            <button type="submit" class="btn-predict">Predict Result</button>
+            <button type="reset" class="btn-reset" onclick="window.location.href='/'">Reset Form</button>
+        </form>
+
+        {% if prediction_text %}
+        <div id="resultBox" class="result show">
+            {{ prediction_text }}
+        </div>
+
+        <script>
+            // Simple logic to change color based on the text
+            var resultText = "{{ prediction_text }}";
+            var box = document.getElementById('resultBox');
+            
+            if (resultText.includes("3.75") || resultText.includes("3.50") || resultText.includes("GPA 5.00")) {
+                box.style.backgroundColor = "#48bb78"; // Green for good grades
+            } else if (resultText.includes("3.25") || resultText.includes("3.00")) {
+                box.style.backgroundColor = "#ed8936"; // Orange for average
+            } else {
+                box.style.backgroundColor = "#f56565"; // Red for lower grades
+            }
+        </script>
+        {% endif %}
+    </div>
+
+</body>
+</html>
