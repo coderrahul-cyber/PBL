@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Predictor</title>
+    <style>
+        /* Using a different color theme (Purple/Dark) to distinguish from the old one */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 { text-align: center; color: #4e4376; margin-bottom: 20px; }
+        .badge { background: #ff4757; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; vertical-align: middle; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; }
+        button { background: #4e4376; color: white; border: none; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2b5876; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; color: white; display: none; }
+        .nav-link { text-align: center; display: block; margin-top: 15px; color: #666; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🤖 Smart Predictor <span class="badge">AI Selected</span></h2>
+        <p style="text-align: center; color: #666; font-size: 0.9em;">Using top 5 correlated factors</p>
+        
+        <form action="/predict_smart" method="post">
+            
+            <label>HSC Result</label>
+            <select name="HSC result" required>
+                <option value="GPA 5.00">GPA 5.00</option>
+                <option value="GPA 4.00 - 4.99">GPA 4.00 - 4.99</option>
+                <option value="GPA 3.00 - 3.99">GPA 3.00 - 3.99</option>
+                <option value="Less than 3.00">Less than 3.00</option>
+            </select>
+
+            <label>Do you Smoke?</label>
+            <select name="Smoking" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+
+            <label>Exam Preparation Strategy</label>
+            <select name="Taking Exam Preparation" required>
+                <option value="Regular study during the semester">Regular study during semester</option>
+                <option value="Close date to exam">Close date to exam</option>
+                <option value="Never">Never</option>
+            </select>
+
+            <label>Attended Dept Seminars?</label>
+            <select name="Attend any Seminar related to department" required>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <label>Did you have a Scholarship in SSC?</label>
+            <select name="Scholarship in SSC" required>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <button type="submit">Analyze Performance</button>
+        </form>
+
+        {% if prediction_text %}
+        <div id="resultBox" class="result" style="display: block;">
+            {{ prediction_text }}
+        </div>
+        <script>
+            var txt = "{{ prediction_text }}";
+            var box = document.getElementById('resultBox');
+            if(txt.includes("High")) box.style.backgroundColor = "#2ed573";
+            else if(txt.includes("Average")) box.style.backgroundColor = "#ffa502";
+            else box.style.backgroundColor = "#ff4757";
+        </script>
+        {% endif %}
+
+        <a href="/" class="nav-link">← Go back to Manual Predictor</a>
+    </div>
+
+</body>
+</html>

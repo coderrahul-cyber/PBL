@@ -57,5 +57,5 @@ sns.heatmap(cm, annot=True, fmt='d', xticklabels=target_names, yticklabels=targe
 plt.ylabel('Actual Result')
 plt.xlabel('Predicted Result')
 plt.title('Confusion Matrix: Where did the AI make mistakes?')
-plt.savefig('accuracy_chart.png')
+plt.savefig('./images/accuracy_chart.png')
 print("\nChart saved as 'accuracy_chart.png'")

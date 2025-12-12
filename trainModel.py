@@ -3,50 +3,62 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report
 
-# 1. Load your specific dataset
+# 1. Load the Data
 data = pd.read_csv('Std_dataset.csv')
-
-# 2. Select the most relevant features (Inputs)
-# We pick 6 clear factors to keep the project simple but effective.
-# You can add more if you want, but you'll need to add them to the website later too.
-features = [
-    'Gender', 
-    'Department', 
-    'SSC result', 
-    'HSC result', 
-    'Weekly Study Time at home', 
-    'Attendance in class'
-]
+features = ['Gender', 'Department', 'SSC result', 'HSC result', 'Weekly Study Time at home', 'Attendance in class']
 target = 'Undergraduate 1st semester result (CGPA/GPA out of 4)'
 
-# Filter the data to keep only what we need
+# 2. THE FIX: Simplify the Target Variable
+# We group the specific grades into 3 distinct "Performance Levels"
+def simplify_grade(grade):
+    # High Grades (3.50 and above)
+    if grade in ['3.75 - 4.00', '3.50 - 3.74', 'GPA 5.00']:
+        return 'High Performance (3.50+)'
+    # Average Grades (3.00 to 3.49)
+    elif grade in ['3.25 - 3.49', '3.00 - 3.24']:
+        return 'Average Performance (3.00 - 3.49)'
+    # Low Grades (Below 3.00)
+    else:
+        return 'Needs Improvement (< 3.00)'
+
+# Apply the simplification
 df = data[features + [target]].copy()
+df['Simple_Target'] = df[target].apply(simplify_grade)
 
-# 3. Preprocessing: Convert Text to Numbers
-# Machine Learning only understands numbers, so we use "LabelEncoder"
-# to turn "Male" -> 1, "Female" -> 0, "GPA 5.00" -> 5, etc.
-
-encoders = {} # We save these to translate user input later
-
-for column in df.columns:
+# 3. Preprocessing (Convert Text to Numbers)
+encoders = {}
+for col in features:
     le = LabelEncoder()
-    df[column] = le.fit_transform(df[column].astype(str))
-    encoders[column] = le # Save the translator for this column
+    df[col] = le.fit_transform(df[col].astype(str))
+    encoders[col] = le
 
-# 4. Split into Training (Input) and Testing (Target)
+# Encode the NEW target
+target_le = LabelEncoder()
+df['Simple_Target_Encoded'] = target_le.fit_transform(df['Simple_Target'])
+encoders[target] = target_le # Save this so the App knows the new labels
+
+# 4. Train/Test Split
 X = df[features]
-y = df[target]
+y = df['Simple_Target_Encoded']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # 5. Train the Model
-# We use RandomForestClassifier because it's great for categorical data (text-based choices)
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X, y)
+# We use 'class_weight="balanced"' to handle the fact that some groups have fewer students
+model = RandomForestClassifier(n_estimators=200, class_weight='balanced', random_state=42)
+model.fit(X_train, y_train)
 
-# 6. Save the Model and the Encoders
-# We need the encoders to translate the user's input on the website back to numbers
-joblib.dump(model, 'student_grade_model.pkl')
-joblib.dump(encoders, 'label_encoders.pkl')
+# 6. Check New Accuracy
+y_pred = model.predict(X_test)
+new_accuracy = accuracy_score(y_test, y_pred)
+print("------------------------------------------------")
+print(f"New Model Accuracy: {new_accuracy * 100:.2f}%")
+print("------------------------------------------------")
+print("\nNew Classification Report:")
+print(classification_report(y_test, y_pred, target_names=target_le.classes_))
 
-print("Success! Model trained.")
-print("Files created: 'student_grade_model.pkl' and 'label_encoders.pkl'")
+# 7. Save the new "Brain"
+joblib.dump(model, './models/student_grade_model.pkl')
+joblib.dump(encoders, './models/label_encoders.pkl')
+print("\nSuccess! New model saved. Restart your app to see the changes.")
